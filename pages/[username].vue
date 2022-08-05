@@ -51,94 +51,75 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { onMounted, ref } from 'vue';
 import { kontenbase } from '../lib/kontenbase';
 
-export default {
-  setup() {
-    const router = useRouter();
-    const route = useRoute();
-    const firstName = ref('');
-    const lastName = ref('');
-    const phoneNumber = ref('');
-    const email = ref('');
-    const profileId = ref('');
-    const image = ref('');
-    const company = ref('');
-    const position = ref('');
-    const location = ref('');
-    const website = ref('');
-    const isOwnProfile = ref(false);
+const router = useRouter();
+const route = useRoute();
+const firstName = ref('');
+const lastName = ref('');
+const phoneNumber = ref('');
+const email = ref('');
+const profileId = ref('');
+const image = ref('');
+const company = ref('');
+const position = ref('');
+const location = ref('');
+const website = ref('');
+const isOwnProfile = ref(false);
 
-    const getProfile = async () => {
-      const { username } = route.params;
+const getProfile = async () => {
+  const { username } = route.params;
 
-      if (!username) {
-        return;
-      }
+  if (!username) {
+    return;
+  }
 
-      const { data, error } = await kontenbase.service('Users').find({
-        where: {
-          username,
-        },
-        lookup: '*',
-      });
+  const { data, error } = await kontenbase.service('Users').find({
+    where: {
+      username,
+    },
+    lookup: '*',
+  });
 
-      if (error) {
-        console.log(error);
-        return;
-      }
+  if (error) {
+    console.log(error);
+    return;
+  }
 
-      if (data) {
-        const user = data?.[0];
-        const profile = user?.profile?.[0];
-        firstName.value = user.firstName;
-        lastName.value = user.lastName;
-        phoneNumber.value = user.phoneNumber;
-        email.value = user.email;
-        profileId.value = profile._id;
-        image.value = profile.image;
-        company.value = profile.company;
-        location.value = profile.location;
-        position.value = profile.position;
-        website.value = profile.website;
+  if (data) {
+    const user = data?.[0];
+    const profile = user?.profile?.[0];
+    firstName.value = user.firstName;
+    lastName.value = user.lastName;
+    phoneNumber.value = user.phoneNumber;
+    email.value = user.email;
+    profileId.value = profile._id;
+    image.value = profile.image;
+    company.value = profile.company;
+    location.value = profile.location;
+    position.value = profile.position;
+    website.value = profile.website;
 
-        const { user: authUser } = await kontenbase.auth.user();
+    const { user: authUser } = await kontenbase.auth.user();
 
-        isOwnProfile.value = user.username === authUser?.username;
-      }
-    };
-
-    const handleLogout = async () => {
-      const { error } = await kontenbase.auth.logout();
-
-      if (error) {
-        console.log(error);
-        return;
-      }
-
-      router.push('/');
-    };
-
-    onMounted(() => {
-      getProfile();
-    });
-
-    return {
-      firstName,
-      lastName,
-      phoneNumber,
-      email,
-      profileId,
-      image,
-      company,
-      location,
-      position,
-      website,
-      isOwnProfile,
-      handleLogout,
-    };
-  },
+    isOwnProfile.value = user.username === authUser?.username;
+  }
 };
+
+const handleLogout = async () => {
+  const { error } = await kontenbase.auth.logout();
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  router.push('/');
+};
+
+onMounted(() => {
+  getProfile();
+});
 </script>
